@@ -33,35 +33,36 @@ A premium project management web application built with Python, Flask, and Mongo
    python run.py
    ```
 
-## Railway Deployment Guide
+## Secure Railway Deployment Guide (No Public IP Whitelisting)
 
-To deploy this application on Railway, follow these steps:
+This guide shows you how to deploy the application completely within Railway's private network using their internal MongoDB service.
 
-1. **Push to GitHub**
-   Ensure your code is pushed to a GitHub repository.
-   ```bash
-   git remote add origin <your-repo-url>
-   git push -u origin main
-   ```
+### Step 1: Push to GitHub
+Ensure your code is pushed to a GitHub repository.
+```bash
+git remote add origin <your-repo-url>
+git push -u origin main
+```
 
-2. **Setup MongoDB Atlas**
-   - Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free cluster.
-   - Under "Database Access", create a user and password.
-   - Under "Network Access", add `0.0.0.0/0` to allow connections from anywhere (Railway).
-   - Click "Connect" -> "Drivers" -> Python, and copy the connection string. Replace `<password>` with your database user's password.
+### Step 2: Create Project & Database on Railway
+1. Go to [Railway.app](https://railway.app/) and sign in.
+2. Click **New Project** -> **Provision PostgreSQL, Redis, etc**.
+3. Select **MongoDB** from the list. 
+4. Railway will now create an empty project and spin up a private MongoDB database for you.
 
-3. **Deploy on Railway**
-   - Go to [Railway.app](https://railway.app/) and sign in.
-   - Click **New Project** -> **Deploy from GitHub repo**.
-   - Select the repository you just pushed.
-   - Click **Add Variables** (or go to Variables tab) and add:
-     - `MONGO_URI` : Paste your MongoDB Atlas connection string.
-     - `SECRET_KEY` : A random long string for session security.
-   
-4. **Deploy**
-   - Railway will automatically detect the Python environment (thanks to `requirements.txt`) and run the application using Gunicorn (thanks to the `Procfile`).
-   - Go to the **Settings** tab of your deployed service on Railway.
-   - Under **Networking**, click "Generate Domain" to get your live public URL.
+### Step 3: Deploy the Web Application
+1. In the same project view (where your new MongoDB bubble is), click the **New** button in the top right.
+2. Select **GitHub Repo** and choose the Nexus repository you just pushed.
+3. Railway will start building your Python app.
 
-Your application is now live!
-# Task-Manager
+### Step 4: Link the Database (Environment Variables)
+1. Click on your newly deployed **Web Application** bubble.
+2. Go to the **Variables** tab.
+3. Click **New Variable** -> **Reference Variable**.
+4. Set the name to `MONGO_URI` and select the value `${MONGO_URL}` (this automatically links to your private MongoDB).
+5. Add another variable named `SECRET_KEY` and type any random long string (e.g., `super-secret-prod-key-12345`).
+
+### Step 5: Go Live
+1. Still inside your Web Application bubble, go to the **Settings** tab.
+2. Scroll down to **Networking** and click **Generate Domain**.
+3. Click on the generated URL to view your live app!
