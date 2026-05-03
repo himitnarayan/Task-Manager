@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="project-header glass-panel slide-up">
+    <div>
+        <h1 class="text-gradient">{{ project.title }}</h1>
+        <p class="subtitle">{{ project.description }}</p>
+    </div>
+    <div class="actions">
+        <a href="{{ url_for('views.dashboard') }}" class="btn btn-secondary">Back</a>
+        {% if current_user.role == 'Admin' %}
+        <button class="btn btn-primary" onclick="toggleModal('newTaskModal')">Add Task</button>
+        <button class="btn btn-outline" onclick="toggleModal('addMemberModal')">Add Member</button>
+        {% endif %}
+    </div>
+</div>
+
+<div class="kanban-board slide-up" style="animation-delay: 0.1s;">
+    <!-- To Do -->
+    <div class="kanban-column glass-panel">
+        <h3 class="column-title">To Do</h3>
+        <div class="kanban-tasks">
+            {% for task in tasks if task.status == 'To Do' %}
+            <div class="kanban-card">
+                <h4>{{ task.title }}</h4>
+                <p>{{ task.description }}</p>
+                {% if current_user.role == 'Admin' or task.assignee_id|string == current_user.get_id() %}
+                <form method="POST" action="{{ url_for('tasks.update_status', task_id=task._id) }}" class="status-form">
+                    <select name="status" class="glass-input sm" onchange="this.form.submit()">
+                        <option value="To Do" selected>To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- In Progress -->
+    <div class="kanban-column glass-panel">
+        <h3 class="column-title">In Progress</h3>
+        <div class="kanban-tasks">
+            {% for task in tasks if task.status == 'In Progress' %}
+            <div class="kanban-card border-info">
+                <h4>{{ task.title }}</h4>
+                <p>{{ task.description }}</p>
+                {% if current_user.role == 'Admin' or task.assignee_id|string == current_user.get_id() %}
+                <form method="POST" action="{{ url_for('tasks.update_status', task_id=task._id) }}" class="status-form">
+                    <select name="status" class="glass-input sm" onchange="this.form.submit()">
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress" selected>In Progress</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Done -->
+    <div class="kanban-column glass-panel">
+        <h3 class="column-title">Done</h3>
+        <div class="kanban-tasks">
+            {% for task in tasks if task.status == 'Done' %}
+            <div class="kanban-card border-success">
+                <h4>{{ task.title }}</h4>
+                <p>{{ task.description }}</p>
+                {% if current_user.role == 'Admin' or task.assignee_id|string == current_user.get_id() %}
+                <form method="POST" action="{{ url_for('tasks.update_status', task_id=task._id) }}" class="status-form">
+                    <select name="status" class="glass-input sm" onchange="this.form.submit()">
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done" selected>Done</option>
+                    </select>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if current_user.role == 'Admin' %}
+<!-- New Task Modal -->
+<div id="newTaskModal" class="modal-overlay hidden">
+    <div class="modal glass-panel">
+        <div class="modal-header">
+            <h2>Add New Task</h2>
+            <button class="close-btn" onclick="toggleModal('newTaskModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('tasks.create_task') }}">
+            <input type="hidden" name="project_id" value="{{ project._id }}">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" class="glass-input" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" class="glass-input" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Assign To</label>
+                <select name="assignee_id" class="glass-input">
+                    <option value="">-- Select Member --</option>
+                    {% for user in users %}
+                    <option value="{{ user._id }}">{{ user.email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" name="due_date" class="glass-input">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Add Task</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Member Modal -->
+<div id="addMemberModal" class="modal-overlay hidden">
+    <div class="modal glass-panel">
+        <div class="modal-header">
+            <h2>Add Member to Project</h2>
+            <button class="close-btn" onclick="toggleModal('addMemberModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('projects.add_member', project_id=project._id) }}">
+            <div class="form-group">
+                <label>User Email</label>
+                <input type="email" name="email" class="glass-input" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Add Member</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
