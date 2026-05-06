@@ -30,4 +30,10 @@ def create_app(config_class=Config):
     app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
     app.register_blueprint(views_bp)
 
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        import traceback
+        # Return the exact error to the browser so we can debug Railway
+        return f"<h2>System Crashed! Please copy this text and send it to the AI:</h2><pre>{str(e)}\n\n{traceback.format_exc()}</pre>", 500
+
     return app
