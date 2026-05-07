@@ -8,7 +8,8 @@ db = None
 def init_db(app):
     global mongo_client, db
     uri = app.config['MONGO_URI']
-    mongo_client = MongoClient(uri)
+    # Set a 3-second timeout so it crashes instantly on screen instead of hanging for 30s
+    mongo_client = MongoClient(uri, serverSelectionTimeoutMS=3000)
     
     # Safely extract database name from URI
     try:
