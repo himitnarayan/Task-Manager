@@ -35,5 +35,12 @@ def update_status(task_id):
             flash('Task status updated.', 'success')
         else:
             flash('You do not have permission to update this task.', 'danger')
-            
+    return redirect(request.referrer or url_for('views.dashboard'))
+
+@tasks_bp.route('/<task_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_task(task_id):
+    Task.delete(task_id)
+    flash('Task deleted successfully.', 'success')
     return redirect(request.referrer or url_for('views.dashboard'))

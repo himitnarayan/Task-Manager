@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.models.project import Project
 from app.models.task import Task
 from app.db import get_db
+from datetime import datetime
 
 views_bp = Blueprint('views', __name__)
 
@@ -31,6 +32,7 @@ def dashboard():
     return render_template('dashboard.html', 
                            projects=projects, 
                            tasks=tasks,
+                           current_date=datetime.now().strftime('%Y-%m-%d'),
                            stats={
                                'total': total_tasks,
                                'todo': todo_tasks,
@@ -52,4 +54,8 @@ def project_detail(project_id):
         db = get_db()
         users = list(db.users.find())
         
-    return render_template('project_detail.html', project=project, tasks=tasks, users=users)
+    return render_template('project_detail.html', 
+                           project=project, 
+                           tasks=tasks, 
+                           users=users,
+                           current_date=datetime.now().strftime('%Y-%m-%d'))

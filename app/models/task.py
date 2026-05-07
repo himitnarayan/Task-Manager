@@ -40,3 +40,8 @@ class Task:
             {'_id': ObjectId(task_id)},
             {'$set': {'status': new_status}}
         )
+
+    @staticmethod
+    def delete(task_id):
+        db = get_db()
+        db.tasks.delete_one({'_id': ObjectId(task_id)})
